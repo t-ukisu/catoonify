@@ -19,5 +19,16 @@ def send_image():
     img = Image.open(BytesIO(image))
     # flipped_img = ImageOps.flip(img)
     # flipped_img.save("image.jpg")
-    img.save("image.jpg")
-    return "image received!"
+
+    # 1. make an image asarray.
+
+    # 2. prediction
+    # generated_img = manGAN.predict(img_array)
+
+    # 3. convert the generated_img to binary format
+    # sendtoimageasbinary file
+
+    # 4. create JSONREsponse
+    # generated_img 
+    # JSONResponse()
+    return JSONResponse()
