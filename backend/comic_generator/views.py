@@ -69,4 +69,3 @@ def send_image(request):
     # JSONResponse()
     return JSONResponse()
 
-
