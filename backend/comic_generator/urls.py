@@ -20,7 +20,9 @@ from django.urls import path, include                 # add this
 from rest_framework import routers                    # add this
 from comic_generator import views
 
+from .views import manGANAPIView
+
+
 urlpatterns = [
-    path("/", admin.site.urls),
-    path('api/', include('comic_generator.urls'))
+    path('', manGANAPIView.as_view()),
 ]
