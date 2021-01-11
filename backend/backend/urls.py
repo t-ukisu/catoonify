@@ -13,9 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# backend/urls.py
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include                 # add this
+from rest_framework import routers                    # add this
+from comic_generator import views
+
+router = routers.DefaultRouter()                      # add this
+router.register(r'todos', views.hello, 'todo')     # add this
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("/", admin.site.urls),
+    path('api/', include(router.urls))                # add this
 ]

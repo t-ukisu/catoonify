@@ -122,7 +122,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-CORS_ORIGIN_WHITELIST = (
-     'http://localhost:8000/'
- )
+# This might cause critical error, I have to scrutinize CORS..
+# CORS_ORIGIN_WHITELIST = (
+#      'http://localhost:8000/'
+#  )
