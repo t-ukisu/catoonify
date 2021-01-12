@@ -126,3 +126,6 @@ STATIC_URL = '/static/'
 # CORS_ORIGIN_WHITELIST = (
 #      'http://localhost:8000/'
 #  )
+
+
+REST_FRAMEWORK = {'EXCEPTION_HANDLER': 'backend.my_exception_handler.custom_exception_handler'}
