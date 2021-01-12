@@ -66,6 +66,7 @@ def send_image(request):
         # generated_img = manGAN.predict(img_array)
 
         # 3. convert the generated_img to binary format
+        # https://chiyoh.hatenablog.com/entry/2019/05/04/145639
         # sendtoimageasbinary file
 
         # 4. create JSONREsponse
