@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 from django.views.generic import ListView
 from rest_framework import generics
+from rest_framework import views
 
 from .serializers import manGANSerializer
 from backend.my_exception_handler import ImageHandlingError
@@ -17,15 +18,18 @@ import numpy as np
 
 from django.http import JsonResponse
 
-class manGANAPIView(generics.ListAPIView):
+class manGANAPIView(views.APIView):
     serializer_class = manGANSerializer
+    http_method_names = ['get', 'head']
+
     
+    def get(self, request, format=None):
+        return send_image(request)
     def dispatch(self, request, *args, **kwargs):
         """
         `.dispatch()` is pretty much the same as Django's regular dispatch,
         but with extra hooks for startup, finalize, and exception handling.
         """
-        # import pdb; pdb.set_trace()
         self.args = args
         self.kwargs = kwargs
         request = self.initialize_request(request, *args, **kwargs)
@@ -34,7 +38,7 @@ class manGANAPIView(generics.ListAPIView):
 
         try:
             self.initial(request, *args, **kwargs)
-            send_image(request)
+            # send_image(request)
 
             # Get the appropriate handler method
             if request.method.lower() in self.http_method_names:
@@ -54,7 +58,7 @@ class manGANAPIView(generics.ListAPIView):
 
 
 def send_image(request):
-    # curl -X POST -H "Content-Type: multipart/form-data" -F "file=@./sample_data/memory.jpg;type='Hayao'" 127.0.0.1:8000/api
+    # curl -X GET -H "Content-Type: multipart/form-data" -F "style=hayao" -F "file=@./sample_data/memory.jpg" 127.0.0.1:8000/api/
     # 上記コマンドでraspberry piから送信
     # https://stackoverflow.com/questions/47515243/reading-image-file-file-storage-object-using-cv2
     # read methodが必要
@@ -76,7 +80,12 @@ def send_image(request):
         # 3. convert the generated_img to binary format
         # https://chiyoh.hatenablog.com/entry/2019/05/04/145639
         # sendtoimageasbinary file
+
+        output = BytesIO()
         bin_img = Image.fromarray(img, 'RGB')
+        bin_img.save(output, format='JPEG')
+        output.getvalue()
+        
 
         # 4. create JSONREsponse
         # bin_imgをcloud storageに格納してurlを送付
@@ -89,5 +98,5 @@ def send_image(request):
         # JSONResponse()
     except Exception as exc:
         raise ImageHandlingError(exc)
-    return JsonResponse({"content":str(bin_img)})
+    return JsonResponse({"content":str(output.getvalue())})
 
