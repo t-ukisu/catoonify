@@ -23,7 +23,7 @@ def custom_exception_handler(exc, context):
         return JsonResponse(err_data, safe=False, status=503)
 
     elif isinstance(exc, ImageHandlingError):
-        err_data = {'MSG_HEADER': 'some custom error messaging'}
+        err_data = {'MSG_HEADER': f'Internal Server Error during image processing: {exc}'}
 
         # logs detail data from the exception being handled
         logging.error(f"Original error detail and callstack: {exc}")
