@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     '@vue/airbnb',
-    '@vue/typescript',
+    "@vue/typescript/recommend"
   ],
   rules: {},
   parserOptions: {
@@ -16,7 +16,7 @@ module.exports = {
     {
       files: [
         '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)',
+        "**/tests/unit/**/*.spec.{j,t}s?(x)"
       ],
       env: {
         jest: true,
