@@ -17,6 +17,8 @@ from io import BytesIO
 import numpy as np
 
 from django.http import JsonResponse, HttpResponse
+from generate_image import generateCartoonImage
+
 
 class manGANAPIView(views.APIView):
     serializer_class = manGANSerializer
@@ -45,29 +47,19 @@ def send_image(request):
         style = request.data["style"]
 
         # 2. prediction
-        # generated_img = manGAN.predict(img_array)
-        # img = img - 0.5
+        generated_img = generateCartoonImage(img_array)
 
         # 3. convert the generated_img to binary format
         # https://chiyoh.hatenablog.com/entry/2019/05/04/145639
         # sendtoimageasbinary file
 
         output = BytesIO()
-        bin_img = Image.fromarray(img, 'RGB')
-        bin_img.save(output, format='JPEG')
+        bin_generated_img = Image.fromarray(generated_img, 'RGB')
+        bin_generated_img.save(output, format='JPEG')
         
-        
-
-        # 4. create JSONREsponse
-        # bin_imgをcloud storageに格納してurlを送付
-        # or binary dataを直接送る
-        from django.template.loader import render_to_string
-        # context = {"data":bin_img}
-        # content_data_string = render_to_string(None, context ,request)
-        # json_data = { "content" : content_data_string }
-        # generated_img 
-        # JSONResponse()
     except Exception as exc:
         raise ImageHandlingError(exc)
+    # 4. create HTTPREsponse
+    # TODO:bin_imgをcloud storageに格納してurlを送付 or binary dataを直接送る
     return HttpResponse(output.getvalue(), content_type="image/png")
 
