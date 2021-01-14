@@ -46,10 +46,9 @@ def send_image(request):
 
         # 2. prediction
         generated_img = generateCartoonImage(binaryImage, style)
-        generated_img = generated_img.transpose((1, 2, 0))
+        # generated_img = generated_img.transpose((1, 2, 0))
         # generated_img = generated_img.astype("int")
 
-        import pdb; pdb.set_trace()
         # 3. convert the generated_img to binary format
         # https://chiyoh.hatenablog.com/entry/2019/05/04/145639
         # sendtoimageasbinary file

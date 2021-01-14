@@ -78,7 +78,24 @@ def generateCartoonImage(binaryImage, style="Hayao"):
     output_image = output_image[[2, 1, 0], :, :]
     # deprocess, (0, 1)
     output_image = output_image.data.cpu().float() * 0.5 + 0.5
-    return output_image.numpy() # numpy.array
+	# これなんだかわかってない。
+    grid = vutils.make_grid(output_image, nrow=8, padding=2, pad_value=0, 
+    normalize=False, range=None, scale_each=False)
+    ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
 
+    return ndarr # numpy.array
+
+
+"""
+    tensor: Union[torch.Tensor, List[torch.Tensor]],
+    fp: Union[Text, pathlib.Path, BinaryIO],
+    nrow: int = 8,
+    padding: int = 2,
+    normalize: bool = False,
+    range: Optional[Tuple[int, int]] = None,
+    scale_each: bool = False,
+    pad_value: int = 0,
+    format: Optional[str] = None,):
+"""
 
 # "./data/real2comic/Aaron_Peirsol_0001.jpg"
