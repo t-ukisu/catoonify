@@ -11,13 +11,13 @@ from rest_framework.response import Response
 from rest_framework import status
 # Create your views here.
 # from rest_framework.views import exception_handler
-
+import PIL
 from PIL import Image
 from io import BytesIO
 import numpy as np
 
 from django.http import JsonResponse, HttpResponse
-from generate_image import generateCartoonImage
+from .generate_image import generateCartoonImage
 
 
 class manGANAPIView(views.APIView):
@@ -35,20 +35,21 @@ def send_image(request):
     # 上記コマンドでraspberry piから送信
     # https://stackoverflow.com/questions/47515243/reading-image-file-file-storage-object-using-cv2
     # read methodが必要
-    # import pdb; pdb.set_trace()
+    
     try:
          # image file
         expected_datatype = (django.core.files.uploadedfile.InMemoryUploadedFile, django.core.files.uploadedfile.TemporaryUploadedFile)
         assert isinstance(request.data.get("file"), expected_datatype) & isinstance(request.data.get("style"), str)
         # 1. make an image asarray.
-        img = Image.open(BytesIO(request.data["file"].read()))
-        img = np.asarray(img)
-
+        binaryImage = BytesIO(request.data["file"].read())
         style = request.data["style"]
 
         # 2. prediction
-        generated_img = generateCartoonImage(img_array)
+        generated_img = generateCartoonImage(binaryImage, style)
+        generated_img = generated_img.transpose((1, 2, 0))
+        # generated_img = generated_img.astype("int")
 
+        import pdb; pdb.set_trace()
         # 3. convert the generated_img to binary format
         # https://chiyoh.hatenablog.com/entry/2019/05/04/145639
         # sendtoimageasbinary file

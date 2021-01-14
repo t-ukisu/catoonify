@@ -2,11 +2,12 @@ import torch
 import os
 import numpy as np
 import argparse
+import PIL
 from PIL import Image
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 import torchvision.utils as vutils
-from network.Transformer import Transformer
+from .network.Transformer import Transformer
 
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--input_dir', default = 'test_img')
@@ -23,7 +24,7 @@ valid_ext = ['.jpg', '.png']
 # if not os.path.exists(opt.output_dir): os.mkdir(opt.output_dir)
 class GeneratorConfig:
     gpu = -1
-    model_path = "./pretrained_model"
+    model_path = os.path.dirname(__file__) + "/pretrained_model"
     load_size = 450
 
     def __init__(self, style="Hayao"):
@@ -32,7 +33,7 @@ class GeneratorConfig:
 
 
 
-def generateCartoonImage(binaryImage, is_gpu, style="Hayao"):
+def generateCartoonImage(binaryImage, style="Hayao"):
     # set config
     opt = GeneratorConfig()
     # load pretrained model
@@ -46,37 +47,38 @@ def generateCartoonImage(binaryImage, is_gpu, style="Hayao"):
     else:
         print('CPU mode')
         model.float()
-	# load image
-	input_image = Image.open(binaryImage).convert("RGB")
+	
+    # load image
+    input_image = Image.open(binaryImage).convert("RGB")
 	# resize image, keep aspect ratio
-	h = input_image.size[0]
-	w = input_image.size[1]
-	ratio = h *1.0 / w
-	if ratio > 1:
-		h = opt.load_size
-		w = int(h*1.0/ratio)
-	else:
-		w = opt.load_size
-		h = int(w * ratio)
-	input_image = input_image.resize((h, w), Image.BICUBIC)
-	input_image = np.asarray(input_image)
-	# RGB -> BGR
-	input_image = input_image[:, :, [2, 1, 0]]
-	input_image = transforms.ToTensor()(input_image).unsqueeze(0)
-	# preprocess, (-1, 1)
-	input_image = -1 + 2 * input_image 
-	if opt.gpu > -1:
-		input_image = Variable(input_image, volatile=True).cuda()
-	else:
-		input_image = Variable(input_image, volatile=True).float()
-	# forward
-	output_image = model(input_image)
-	output_image = output_image[0]
-	# BGR -> RGB
-	output_image = output_image[[2, 1, 0], :, :]
-	# deprocess, (0, 1)
-	output_image = output_image.data.cpu().float() * 0.5 + 0.5
-    return output_image
+    h = input_image.size[0]
+    w = input_image.size[1]
+    ratio = h *1.0 / w
+    if ratio > 1:
+        h = opt.load_size
+        w = int(h*1.0/ratio)
+    else:
+        w = opt.load_size
+        h = int(w * ratio)
+    input_image = input_image.resize((h, w), Image.BICUBIC)
+    input_image = np.asarray(input_image)
+    # RGB -> BGR
+    input_image = input_image[:, :, [2, 1, 0]]
+    input_image = transforms.ToTensor()(input_image).unsqueeze(0)
+    # preprocess, (-1, 1)
+    input_image = -1 + 2 * input_image 
+    if opt.gpu > -1:
+        input_image = Variable(input_image, volatile=True).cuda()
+    else:
+        input_image = Variable(input_image, volatile=True).float()
+    # forward
+    output_image = model(input_image)
+    output_image = output_image[0]
+    # BGR -> RGB
+    output_image = output_image[[2, 1, 0], :, :]
+    # deprocess, (0, 1)
+    output_image = output_image.data.cpu().float() * 0.5 + 0.5
+    return output_image.numpy() # numpy.array
 
 
 # "./data/real2comic/Aaron_Peirsol_0001.jpg"
