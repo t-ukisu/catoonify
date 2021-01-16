@@ -61,5 +61,12 @@ def send_image(request):
         raise ImageHandlingError(exc)
     # 4. create HTTPREsponse
     # TODO:bin_imgをcloud storageに格納してurlを送付 or binary dataを直接送る
-    return HttpResponse(output.getvalue(), content_type="image/png")
+    response = HttpResponse(output.getvalue(), content_type="image/png")
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+    response["Access-Control-Max-Age"] = "1000"
+    response["Access-Control-Allow-Headers"] = "*"
+    return response
+
+
 
