@@ -80,11 +80,24 @@ def send_image(request_):
         raise ImageHandlingError(exc)
     # 4. create HTTPREsponse
     # TODO:bin_imgをcloud storageに格納してurlを送付 or binary dataを直接送る
-
     response = HttpResponse(
-        output.getvalue(),
+        # base64.b64encode()
+        encode_b64(output.getvalue()),
         content_type="image/png"
         )
     response['Access-Control-Allow-Origin'] = '*'
     return response
 
+# import mimetypes
+from base64 import b64decode, b64encode
+
+def encode_b64(value):
+    # value.file.seek(0)
+    # mime_type, encoding = mimetypes.guess_type(value.name)
+    # if not mime_type:
+    mime_type = 'image/png'
+    data = value
+    image_data = bytes(
+        'data:' + mime_type + ';base64,', encoding='UTF-8'
+        ) + b64encode(data)
+    return image_data  # or str(image_data, 'utf-8')
