@@ -5,11 +5,11 @@
         <canvas id="before_image" width="400" height="400" style="background-color: gray;" />
       </v-col>
       <v-col>
-        <canvas width="400" height="400" style="background-color: gray;" />
+        <canvas id="after_image" width="400" height="400" style="background-color: gray;" />
       </v-col>
       <v-col style="text-align: center;">
         <v-btn
-          @click="pushLoadButton()">
+          @click="onClickLoadButton">
           ファイル選択
         </v-btn>
       </v-col>
@@ -20,43 +20,91 @@
       ref="input"
       type="file"
       accept="image/jpeg, image/jpg, image/png"
-      @change="selectedFile()"
+      @change="onChangeFile"
     >
   </v-container>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import Response from '@/common/models/response'
 
 @Component({})
 export default class MainFrame extends Vue {
 
-  private pushLoadButton() {
+  private onClickLoadButton() {
     const { input }: any = this.$refs;
     input.click();
   }
 
-  private async selectedFile() {
-    const { input }: any = this.$refs;
-    const file = input.files[0];
+  private async onChangeFile(event: any) {
+    let files = event.target.files || event.dataTransfer.files;
+    let file = files[0];
     if (!file) {
       return;
     }
-    // 以下ファイルの操作
-    let canvas = <HTMLCanvasElement> document.getElementById('before_image');
-    let ctx = canvas.getContext('2d');
+
+    // 同じファイルを選んでもイベントが発火するように
+    event.target.value = '';
+
+    this.drowImageBefore(file, 'before_image');
+
+    let param;
+    try {
+      param = {
+        style: 'hayao',
+        file: await this.getBase64(file) as string
+      };
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append('file', file);
+    formData.append('style', 'hayao');
+
+    let res;
+    try {
+      res = await Vue.$fetch.post_original('api/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    // TODO 正常時の動作
+    this.drowImage(res.data, 'after_image');
+  }
+
+  private drowImageBefore(file: any, canvasId: string) {
     const reader = new FileReader();
+    let self = this;
     reader.onload = function(e) {
-      // canvas上に画像を重ねて表示
-      let img = new Image();
-      img.src = e.target!.result as string;
-      img.onload = function() {
-        ctx!.drawImage(img, 0, 0, 400, 400);
-      }
+      self.drowImage(e.target!.result, canvasId);
     }
     reader.readAsDataURL(file);
+  }
 
-    // TODO API連携
+  private drowImage(file: any, canvasId: string) {
+    let canvas = <HTMLCanvasElement> document.getElementById(canvasId);
+    let ctx = canvas.getContext('2d');
+    // canvas上に画像を重ねて表示
+    let img = new Image();
+    img.src = file as string;
+    img.onload = function() {
+      ctx!.drawImage(img, 0, 0, 400, 400);
+    }
+  }
+
+  private getBase64(file: any) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
   }
 }
 </script>
