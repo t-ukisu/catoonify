@@ -25,7 +25,7 @@ SECRET_KEY = '3c_-06l*c-%tp2i!dq9hv1x!ivtj^uic242o2v2t8lhaqp@7(+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -102,7 +102,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://100.64.1.15:8080"
+]
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -128,4 +130,11 @@ STATIC_URL = '/static/'
 #  )
 
 
-REST_FRAMEWORK = {'EXCEPTION_HANDLER': 'backend.my_exception_handler.custom_exception_handler'}
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'backend.my_exception_handler.custom_exception_handler',  
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.MultiPartParser',
+
+    ]
+    }
+APPEND_SLASH=False

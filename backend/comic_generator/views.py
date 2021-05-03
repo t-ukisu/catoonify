@@ -22,15 +22,17 @@ from .generate_image import generateCartoonImage
 
 class manGANAPIView(views.APIView):
     serializer_class = manGANSerializer
-    http_method_names = ['get', 'head']
+    http_method_names = ['get', "post",'head', "options"]
 
     
     def get(self, request, format=None):
         return send_image(request)
 
+    def post(self, request, format=None):
+        return send_image(request)
 
 
-def send_image(request):
+def send_image(request_):
     # curl -X GET -H "Content-Type: multipart/form-data" -F "style=hayao" -F "file=@./sample_data/memory.jpg" 127.0.0.1:8000/api/
     # 上記コマンドでraspberry piから送信
     # https://stackoverflow.com/questions/47515243/reading-image-file-file-storage-object-using-cv2
@@ -38,12 +40,29 @@ def send_image(request):
     
     try:
          # image file
+        
+        import json
+        import base64
+        
+        # form-data type
+        dict_res = request_.data
+        # json.loads(request_.body)
+        
         expected_datatype = (django.core.files.uploadedfile.InMemoryUploadedFile, django.core.files.uploadedfile.TemporaryUploadedFile)
-        assert isinstance(request.data.get("file"), expected_datatype) & isinstance(request.data.get("style"), str)
-        # 1. make an image asarray.
-        binaryImage = BytesIO(request.data["file"].read())
-        style = request.data["style"]
+        assert isinstance(dict_res.get("file"), expected_datatype) & isinstance(dict_res.get("style"), str)
+        # 1. make an image asarray.``
+        # BytesIO(base64.b64decode(dict_res["file"]))
+        # Image.open(BytesIO(base64.b64decode(dict_res["file"])))
+        binaryImage = dict_res["file"]
+        # binaryImage = base64.b64decode(dict_res["file"].split(",")[1])
+        # binaryImage = base64.b64decode(dict_res["file"])
+        # binaryImage = base64.urlsafe_b64decode(dict_res["file"])
+        # binaryImage = BytesIO(dict_res["file"].read())
+        style = dict_res["style"]
 
+        # from urllib import request
+        # with request.urlopen(data_uri) as response:
+        #     binaryImage = response.read()
         # 2. prediction
         generated_img = generateCartoonImage(binaryImage, style)
         # generated_img = generated_img.transpose((1, 2, 0))
@@ -61,5 +80,11 @@ def send_image(request):
         raise ImageHandlingError(exc)
     # 4. create HTTPREsponse
     # TODO:bin_imgをcloud storageに格納してurlを送付 or binary dataを直接送る
-    return HttpResponse(output.getvalue(), content_type="image/png")
+
+    response = HttpResponse(
+        output.getvalue(),
+        content_type="image/png"
+        )
+    response['Access-Control-Allow-Origin'] = '*'
+    return response
 

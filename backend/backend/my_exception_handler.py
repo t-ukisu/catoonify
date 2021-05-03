@@ -9,7 +9,6 @@ class ImageHandlingError(Exception):
 
 def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first
-    import pdb; pdb.set_trace()
     response = exception_handler(exc, context)
 
     # checks if the raised exception is of the type you want to handle
