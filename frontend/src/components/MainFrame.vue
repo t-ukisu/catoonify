@@ -54,7 +54,7 @@ export default class MainFrame extends Vue {
 
     let res;
     try {
-      res = await Vue.$fetch.post_original('api/', formData, {
+      res = await Vue.$fetch.post_original('api', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (error) {
