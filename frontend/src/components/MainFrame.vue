@@ -27,7 +27,6 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import Response from '@/common/models/response'
 
 @Component({})
 export default class MainFrame extends Vue {
@@ -49,20 +48,9 @@ export default class MainFrame extends Vue {
 
     this.drowImageBefore(file, 'before_image');
 
-    let param;
-    try {
-      param = {
-        style: 'hayao',
-        file: await this.getBase64(file) as string
-      };
-    } catch (error) {
-      console.error(error);
-      return;
-    }
-
     let formData = new FormData();
     formData.append('file', file);
-    formData.append('style', 'hayao');
+    formData.append('style', 'Hayao');
 
     let res;
     try {
@@ -74,7 +62,6 @@ export default class MainFrame extends Vue {
       return;
     }
 
-    // TODO 正常時の動作
     this.drowImage(res.data, 'after_image');
   }
 
@@ -96,15 +83,6 @@ export default class MainFrame extends Vue {
     img.onload = function() {
       ctx!.drawImage(img, 0, 0, 400, 400);
     }
-  }
-
-  private getBase64(file: any) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
   }
 }
 </script>
