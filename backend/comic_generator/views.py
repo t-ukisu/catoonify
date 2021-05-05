@@ -19,6 +19,10 @@ import numpy as np
 from django.http import JsonResponse, HttpResponse
 from .generate_image import generateCartoonImage
 
+# import the logging library
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 class manGANAPIView(views.APIView):
     serializer_class = manGANSerializer
@@ -37,7 +41,7 @@ def send_image(request_):
     # 上記コマンドでraspberry piから送信
     # https://stackoverflow.com/questions/47515243/reading-image-file-file-storage-object-using-cv2
     # read methodが必要
-    
+    logger.info("API is requested")
     try:
          # image file
         
@@ -77,6 +81,7 @@ def send_image(request_):
         bin_generated_img.save(output, format='JPEG')
         
     except Exception as exc:
+        logger.error(f'Something went wrong! {exc}')
         raise ImageHandlingError(exc)
     # 4. create HTTPREsponse
     # TODO:bin_imgをcloud storageに格納してurlを送付 or binary dataを直接送る

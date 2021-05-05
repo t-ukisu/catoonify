@@ -34,3 +34,4 @@ pnpm-debug.log*
 
 dist/
 
+__pycache__
