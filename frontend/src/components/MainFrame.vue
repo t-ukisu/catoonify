@@ -30,14 +30,19 @@ import { Vue, Component } from 'vue-property-decorator';
 
 @Component({})
 export default class MainFrame extends Vue {
+  private static readonly BEFORE_IMAGE_CANVAS_ID = 'before_image'
+  private static readonly AFTER_IMAGE_CANVAS_ID = 'after_image'
 
   private onClickLoadButton() {
     const { input }: any = this.$refs;
     input.click();
   }
 
-  private async onChangeFile(event: any) {
-    let files = event.target.files || event.dataTransfer.files;
+  private async onChangeFile(event: HTMLInputEvent) {
+    let files = event.target.files;
+    if (!files) {
+      return;
+    }
     let file = files[0];
     if (!file) {
       return;
@@ -46,15 +51,15 @@ export default class MainFrame extends Vue {
     // 同じファイルを選んでもイベントが発火するように
     event.target.value = '';
 
-    this.drowImageBefore(file, 'before_image');
+    this.drowImageBefore(file, MainFrame.BEFORE_IMAGE_CANVAS_ID);
 
     let formData = new FormData();
     formData.append('file', file);
     formData.append('style', 'Hayao');
 
-    let res;
+    let response;
     try {
-      res = await Vue.$fetch.post_original('api', formData, {
+      response = await Vue.$fetch.post_original('api', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     } catch (error) {
@@ -62,28 +67,57 @@ export default class MainFrame extends Vue {
       return;
     }
 
-    this.drowImage(res.data, 'after_image');
+    this.drowImage(response.data as string, MainFrame.AFTER_IMAGE_CANVAS_ID);
   }
 
-  private drowImageBefore(file: any, canvasId: string) {
+  private drowImageBefore(file: File, canvasId: string) {
     const reader = new FileReader();
     let self = this;
-    reader.onload = function(e) {
-      self.drowImage(e.target!.result, canvasId);
-    }
+    reader.onload = e => self.drowImage(e.target!.result!, canvasId);
     reader.readAsDataURL(file);
   }
 
-  private drowImage(file: any, canvasId: string) {
+  private drowImage(file: string | ArrayBuffer, canvasId: string) {
     let canvas = <HTMLCanvasElement> document.getElementById(canvasId);
     let ctx = canvas.getContext('2d');
     // canvas上に画像を重ねて表示
     let img = new Image();
     img.src = file as string;
-    img.onload = function() {
-      ctx!.drawImage(img, 0, 0, 400, 400);
+    img.onload = this.onloadImage(ctx!, img);
+  }
+
+  private onloadImage(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
+    return function () {
+      let canvasAspect = ctx.canvas.width / ctx.canvas.height; // canvasのアスペクト比
+      let imgAspect = img.width / img.height // 画像のアスペクト比
+
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      let left;
+      let top;
+      let width;
+      let height;
+      if(imgAspect >= canvasAspect) {
+        // 画像が横長
+        left = 0;
+        width = ctx.canvas.width;
+        height = ctx.canvas.width / imgAspect;
+        top = (ctx.canvas.height - height) / 2;
+      } else {
+        // 画像が縦長
+        top = 0;
+        height = ctx.canvas.height;
+        width = ctx.canvas.height * imgAspect;
+        left = (ctx.canvas.width - width) / 2;
+      }
+      ctx.drawImage(img, 0, 0, img.width, img.height, left, top, width, height);
     }
   }
+}
+
+interface HTMLInputEvent extends Event {
+  target: HTMLInputElement & EventTarget
 }
 </script>
 
