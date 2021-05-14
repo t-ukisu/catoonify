@@ -51,7 +51,7 @@ export default class MainFrame extends Vue {
     // 同じファイルを選んでもイベントが発火するように
     event.target.value = '';
 
-    this.drowImageBefore(file, MainFrame.BEFORE_IMAGE_CANVAS_ID);
+    this.readImageFile(file, MainFrame.BEFORE_IMAGE_CANVAS_ID);
 
     let formData = new FormData();
     formData.append('file', file);
@@ -70,10 +70,9 @@ export default class MainFrame extends Vue {
     this.drowImage(response.data as string, MainFrame.AFTER_IMAGE_CANVAS_ID);
   }
 
-  private drowImageBefore(file: File, canvasId: string) {
+  private readImageFile(file: File, canvasId: string) {
     const reader = new FileReader();
-    let self = this;
-    reader.onload = e => self.drowImage(e.target!.result!, canvasId);
+    reader.onload = e => this.drowImage(e.target!.result!, canvasId);
     reader.readAsDataURL(file);
   }
 
@@ -87,7 +86,7 @@ export default class MainFrame extends Vue {
   }
 
   private onloadImage(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
-    return function () {
+    return () => {
       let canvasAspect = ctx.canvas.width / ctx.canvas.height; // canvasのアスペクト比
       let imgAspect = img.width / img.height // 画像のアスペクト比
 
