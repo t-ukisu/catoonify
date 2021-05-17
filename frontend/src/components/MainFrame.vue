@@ -43,8 +43,8 @@ export default class MainFrame extends Vue {
   private file: File | undefined
 
   private onClickLoadButton() {
-    const { input }: any = this.$refs;
-    input.click();
+    const { input } = this.$refs;
+    (input as HTMLInputElement).click();
   }
 
   private onChangeFile(event: HTMLInputEvent) {

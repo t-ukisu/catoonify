@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/firebase_hackathon.iml" filepath="$PROJECT_DIR$/firebase_hackathon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/catoonify.iml" filepath="$PROJECT_DIR$/catoonify.iml" />
     </modules>
   </component>
 </project>
